@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayrollCalc", "PayrollCalc\PayrollCalc.csproj", "{4CC14850-A17A-4868-B902-1BACC5CC771C}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Employees", "Employees\Employees.shproj", "{60ED596F-E637-4472-9E10-AF0D644CACFE}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Employees\Employees.projitems*{4cc14850-a17a-4868-b902-1bacc5cc771c}*SharedItemsImports = 4
+		Employees\Employees.projitems*{60ed596f-e637-4472-9e10-af0d644cacfe}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4CC14850-A17A-4868-B902-1BACC5CC771C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CC14850-A17A-4868-B902-1BACC5CC771C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CC14850-A17A-4868-B902-1BACC5CC771C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CC14850-A17A-4868-B902-1BACC5CC771C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
