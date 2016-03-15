@@ -9,6 +9,7 @@
     <Import_RootNamespace>Employees</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)GenericEmployeeType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IPayrollable.cs" />
   </ItemGroup>
 </Project>

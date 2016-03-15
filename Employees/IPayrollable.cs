@@ -1,17 +1,26 @@
 ﻿using System;
+using PayrollCalc.Settings;
 
 namespace Payroll
 {
-    interface IPayrollable
+    public interface IPayrollable
     {
 
         int GetFullYears();
         int GetFullYearsFromDate(DateTime payrollDate);
-        int GetSubordinateCount();
-        int GetSubordinateCount(int subDepth);
+
         double GetAnnualBonus();
         double GetAnnualBonusFromDate(DateTime payrollDate);
         double CalcCurrentPay();
         double CalcPayForDate(DateTime payrollDate);
+
+        void AddManager(Managerial manager);
+        void UpdateManager(Managerial manager);
+    }
+
+    public interface IManagerial : IPayrollable
+    {
+        int GetSubordinateCount();
+        int GetSubordinateCount(int subDepth);
     }
 }
