@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Payroll
 {
     interface IPayrollable
     {
+
         int GetFullYears();
         int GetFullYearsFromDate(DateTime payrollDate);
+        int GetSubordinateCount();
+        int GetSubordinateCount(int subDepth);
         double GetAnnualBonus();
         double GetAnnualBonusFromDate(DateTime payrollDate);
         double CalcCurrentPay();

@@ -1,27 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Payroll;
 
 namespace PayrollCalc.Settings
 {
-    public enum ManagerBonusLevels
-    { Immediate, All}
-
     abstract class EmployeeType : IPayrollable
     {
         protected readonly string PositionName;
+        protected readonly string FirstName;
+        protected readonly string LastName;
         protected readonly DateTime HireDate;
         protected readonly float BaseRate;
         protected readonly float AnnualBonus;
         protected readonly float MaxAnnualBonus;
 
-        protected EmployeeType(string positionName, DateTime hireDate, float baseRate, float annualBonus, float maxAnnualBonus)
+        protected EmployeeType(string firstName, string lastName, DateTime hireDate, float baseRate, string positionName, float annualBonus, float maxAnnualBonus)
         {
             PositionName = positionName;
             HireDate = hireDate;
             BaseRate = baseRate;
             AnnualBonus = annualBonus;
             MaxAnnualBonus = maxAnnualBonus;
+            FirstName = firstName;
+            LastName = lastName;
         }
 
         public int GetFullYears()
@@ -33,6 +35,10 @@ namespace PayrollCalc.Settings
         {
             return payrollDate.Year - HireDate.Year;
         }
+
+        public abstract int GetSubordinateCount();
+        public abstract int GetSubordinateCount(int subDepth);
+
 
         public double GetAnnualBonus()
         {
@@ -49,77 +55,94 @@ namespace PayrollCalc.Settings
         {
            return  CalcPayForDate(DateTime.Now);
         }
-        public abstract double CalcPayForDate(DateTime payrollDate);
+        public double CalcPayForDate(DateTime payrollDate)
+        {
+            return (1 + GetAnnualBonusFromDate(payrollDate)) * BaseRate;
+        }
     }
 
     internal abstract class Managerial : EmployeeType
     {
-        protected Managerial(string positionName, DateTime hireDate, float baseRate, float annualBonus, float maxAnnualBonus, float managerBonus, ManagerBonusLevels managerBonusLevels) : base(positionName, hireDate, baseRate, annualBonus, maxAnnualBonus)
+        protected Managerial(string firstName, string lastName, DateTime hireDate, float baseRate, string positionName,
+            float annualBonus, float maxAnnualBonus, float managerBonus, sbyte managerBonusLevels)
+            : base(firstName, lastName, hireDate, baseRate, positionName, annualBonus, maxAnnualBonus)
         {
             ManagerBonus = managerBonus;
             ManagerBonusLevels = managerBonusLevels;
             Subordinates = new List<EmployeeType>();
         }
 
-        public Managerial Manager { get; set; }
         public List<EmployeeType> Subordinates { get; set; }
 
         protected readonly float ManagerBonus;
-        protected readonly ManagerBonusLevels ManagerBonusLevels;
-
-        public abstract int GetSubordinateCount();
-
-        public override double CalcPayForDate(DateTime payrollDate)
-        {
-            return (1 +(GetAnnualBonusFromDate(payrollDate) + GetSubordinateCount() * ManagerBonus)) * BaseRate;
-        }
-
-    }
-
-    class Manager : Managerial
-    {
-        public Manager(string positionName, DateTime hireDate, float baseRate) : base(positionName, hireDate, baseRate, annualBonus: 5, maxAnnualBonus: 40, managerBonus: (float) 0.5, managerBonusLevels: ManagerBonusLevels.Immediate)
-        {
-        }
+        protected readonly sbyte ManagerBonusLevels;
 
         public override int GetSubordinateCount()
         {
-            return Subordinates.Count;
-        }
-    }
-
-    class Sales : Managerial
-    {
-        public Sales(string positionName, DateTime hireDate, float baseRate) : base(positionName, hireDate, baseRate, annualBonus:1, maxAnnualBonus:35, managerBonus : (float)0.3, managerBonusLevels: ManagerBonusLevels.All)
-        {
+            return GetSubordinateCount(ManagerBonusLevels);
         }
 
-        public override int GetSubordinateCount()
+        public override int GetSubordinateCount(int subDepth)
         {
-            throw new NotImplementedException();
-        }
-    }
+            if (subDepth == 0)
+                return 0;
 
-    class Grunt : EmployeeType {
+            subDepth -= 1;
 
-
-        public Managerial Manager { get; set; }
-
-        public Grunt(string positionName, DateTime hireDate, float baseRate)
-            : base(positionName, hireDate, baseRate, annualBonus: 3, maxAnnualBonus: 30)
-        {
-        }
-
-        public Grunt(string positionName, DateTime hireDate, float baseRate,Managerial manager)
-    : base(positionName, hireDate, baseRate, annualBonus: 3, maxAnnualBonus: 30)
-        {
-            Manager = manager;
+            return Subordinates.Count + Subordinates.Sum(employee => employee.GetSubordinateCount(subDepth));
         }
 
 
-        public override double CalcPayForDate(DateTime payrollDate)
+        public new double CalcPayForDate(DateTime payrollDate)
         {
-            return (1 + GetAnnualBonusFromDate(payrollDate)) * BaseRate;
+            return (1 + (GetAnnualBonusFromDate(payrollDate) + GetSubordinateCount()*ManagerBonus))*BaseRate;
+        }
+
+
+        class Manager : Managerial
+        {
+            public Manager(String firstName, string lastName, DateTime hireDate, float baseRate)
+                : base(
+                    firstName, lastName, hireDate, baseRate, positionName: "Manager", annualBonus: 5, maxAnnualBonus: 40,
+                    managerBonus: (float) 0.5, managerBonusLevels: 1)
+            {
+            }
+
+        }
+
+        class Sales : Managerial
+        {
+            public Sales(String firstName, string lastName, DateTime hireDate, float baseRate)
+                : base(
+                    firstName, lastName, hireDate, baseRate, positionName: "Sales", annualBonus: 1, maxAnnualBonus: 35,
+                    managerBonus: (float) 0.3, managerBonusLevels: -1)
+            {
+            }
+
+        }
+
+        class Grunt : EmployeeType
+        {
+
+
+            public Grunt(string firstName, string lastName, DateTime hireDate, float baseRate)
+                : base(
+                    firstName, lastName, hireDate, baseRate, positionName: "Employee", annualBonus: 3,
+                    maxAnnualBonus: 30)
+            {
+            }
+
+            public override int GetSubordinateCount()
+            {
+                return GetSubordinateCount(0);
+            }
+
+            public override int GetSubordinateCount(int subDepth)
+            {
+                return 0;
+            }
+
+
         }
     }
 }
