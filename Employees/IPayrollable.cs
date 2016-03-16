@@ -1,7 +1,6 @@
 ﻿using System;
-using PayrollCalc.Settings;
 
-namespace Payroll
+namespace PayrollCalc.Employees
 {
     public interface IPayrollable
     {
@@ -13,14 +12,12 @@ namespace Payroll
         double GetAnnualBonusFromDate(DateTime payrollDate);
         double CalcCurrentPay();
         double CalcPayForDate(DateTime payrollDate);
-
-        void AddManager(Managerial manager);
-        void UpdateManager(Managerial manager);
     }
 
     public interface IManagerial : IPayrollable
     {
         int GetSubordinateCount();
         int GetSubordinateCount(int subDepth);
+        double GetSubordinatePay();
     }
 }
